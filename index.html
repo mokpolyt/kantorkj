@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top 5 Threads #kerjaremote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f4;--ink:#16221c;--mute:#5d6b63;--line:#cfd9d3;--card:#fff;--accent:#0b6b4f;--chip:#e3efe9;--onaccent:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1713;--ink:#e8f0eb;--mute:#93a39a;--line:#26362d;--card:#16211b;--accent:#5fd3a5;--chip:#1d2e25;--onaccent:#0f1713}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 "Source Serif 4",Georgia,serif}
+main{max-width:720px;margin:0 auto;padding:48px 20px 80px}
+h1{font:800 clamp(2rem,6vw,3.2rem)/1.05 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 8px;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 36px}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+li:first-child{border-color:var(--accent);border-width:2px}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font:500 .95rem "Bricolage Grotesque",system-ui,sans-serif}
+.user{color:var(--accent)}
+.score{font-weight:800;font-size:1.4rem}
+p.t{margin:12px 0 14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:500 .85rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--mute)}
+.meta span{background:var(--chip);padding:3px 9px;border-radius:99px}
+.meta a{margin-left:auto;color:var(--accent);font-weight:800;text-decoration:none}
+.meta a:hover,.meta a:focus-visible{text-decoration:underline}
+.state{color:var(--mute)}
+details{margin-top:40px;border-top:1px solid var(--line);padding-top:20px;font:500 .95rem/1.5 "Bricolage Grotesque",system-ui,sans-serif}
+summary{cursor:pointer;font-weight:800}
+details ol{list-style:decimal;padding-left:20px;display:block;margin:12px 0}
+details li{background:none;border:0;padding:2px 0}
+input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);width:100%;max-width:340px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+button,a.btn{font:800 .9rem "Bricolage Grotesque",system-ui,sans-serif;padding:9px 14px;border-radius:6px;border:0;background:var(--accent);color:var(--onaccent);cursor:pointer;text-decoration:none}
+a.btn{background:var(--chip);color:var(--accent);border:1px dashed var(--accent)}
+button:focus-visible,a.btn:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ok{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Top 5 post #kerjaremote</h1>
+  <p class="sub" id="sub">Post dengan engagement tertinggi di Threads.</p>
+  <ol id="list"><li class="state">Memuat…</li></ol>
+
+  <details>
+    <summary>Ambil data terbaru dari Threads</summary>
+    <ol>
+      <li>Masukkan kata rahasia (sama dengan yang ada di <code>supabase.sql</code>).</li>
+      <li>Klik <b>Salin skrip</b>, atau seret tombol <b>Bookmarklet</b> ke bookmark bar.</li>
+      <li>Login ke Threads dan buka <code>threads.com/search?q=kerjaremote</code>.</li>
+      <li>Tekan F12 &gt; Console, tempel skrip lalu Enter (atau klik bookmarklet-nya).</li>
+      <li>Kembali ke halaman ini dan muat ulang.</li>
+    </ol>
+    <div class="row">
+      <input id="secret" type="password" placeholder="Kata rahasia" autocomplete="off">
+      <button id="copy" type="button">Salin skrip</button>
+      <a id="bm" class="btn" href="#">Bookmarklet</a>
+    </div>
+    <div id="msg" class="ok" role="status"></div>
+  </details>
+</main>
+
+<script>
+/* Dari Supabase > Project Settings > API. Anon key aman dipublikasikan:
+   tabel hanya bisa dibaca (RLS), dan menulis butuh kata rahasia. */
+const SUPABASE_URL = "https://gjyeknwtoofpuvoaftfj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_HBf14rn-fWP8AZ_OaLFfag_V6qNKjk5";
+const SEARCH_QUERY = "kerjaremote";
+
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const fmt = n => new Intl.NumberFormat("id-ID").format(n || 0);
+
+/* ---------- 1. Tampilkan top 5 ---------- */
+async function load() {
+  const list = document.getElementById("list");
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/threads_posts?select=*&order=engagement.desc&limit=5`, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    if (!res.ok) throw new Error(res.status);
+    const posts = await res.json();
+    list.replaceChildren();
+    if (!posts.length) { list.append(el("li", "state", "Belum ada data. Ambil data lewat panel di bawah.")); return; }
+
+    posts.forEach(p => {
+      const li = el("li");
+      const top = el("div", "top");
+      top.append(el("span", "user", "@" + (p.username || "unknown")), el("span", "score", fmt(p.engagement)));
+      const meta = el("div", "meta");
+      [["suka", p.like_count], ["balasan", p.reply_count], ["repost", p.repost_count], ["kutipan", p.quote_count]]
+        .forEach(([l, n]) => meta.append(el("span", null, `${fmt(n)} ${l}`)));
+      const a = el("a", null, "Buka di Threads");
+      a.href = p.permalink; a.target = "_blank"; a.rel = "noopener noreferrer";
+      meta.append(a);
+      li.append(top, el("p", "t", p.text || "(tanpa teks)"), meta);
+      list.append(li);
+    });
+    document.getElementById("sub").textContent =
+      "Diperbarui " + new Date(posts[0].fetched_at).toLocaleString("id-ID") + " · engagement = suka + balasan + repost + kutipan";
+  } catch (e) {
+    list.replaceChildren(el("li", "state", "Gagal memuat data. Periksa SUPABASE_URL dan SUPABASE_ANON_KEY."));
+  }
+}
+load();
+
+/* ---------- 2. Collector: dijalankan di halaman Threads, bukan di sini ---------- */
+async function collector(cfg) {
+  for (let i = 0; i < 8; i++) { window.scrollTo(0, document.body.scrollHeight); await new Promise(r => setTimeout(r, 1500)); }
+
+  const num = s => {
+    if (!s) return 0;
+    const m = s.toLowerCase().replace(/\s/g, "").match(/([\d.,]+)(k|rb|m|jt)?/);
+    if (!m) return 0;
+    let v = m[2] ? parseFloat(m[1].replace(",", ".")) : parseInt(m[1].replace(/[.,]/g, ""), 10);
+    if (m[2] === "k" || m[2] === "rb") v *= 1e3;
+    if (m[2] === "m" || m[2] === "jt") v *= 1e6;
+    return Math.round(v) || 0;
+  };
+  const kind = l => {
+    l = l.toLowerCase();
+    if (/^(like|suka|batal suka|unlike)/.test(l)) return "like_count";
+    if (/^(reply|balas)/.test(l)) return "reply_count";
+    if (/^(repost|posting ulang)/.test(l)) return "repost_count";
+    if (/^(quote|kutip)/.test(l)) return "quote_count";
+  };
+
+  const posts = new Map();
+  document.querySelectorAll('a[href*="/post/"]').forEach(a => {
+    const m = a.getAttribute("href").match(/\/@([^/]+)\/post\/([^/?#]+)/);
+    if (!m || posts.has(m[2])) return;
+    let box = a.closest('[data-pressable-container="true"]');
+    if (!box) { box = a; for (let i = 0; i < 8 && box.parentElement; i++) box = box.parentElement; }
+    const text = [...box.querySelectorAll('span[dir="auto"]')]
+      .map(s => s.innerText.trim()).sort((x, y) => y.length - x.length)[0] || "";
+    const p = { id: m[2], username: m[1], text, permalink: "https://www.threads.com/@" + m[1] + "/post/" + m[2],
+                like_count: 0, reply_count: 0, repost_count: 0, quote_count: 0 };
+    box.querySelectorAll("svg[aria-label]").forEach(svg => {
+      const k = kind(svg.getAttribute("aria-label"));
+      const btn = svg.closest('[role="button"]');
+      if (k && btn) p[k] = num(btn.innerText);
+    });
+    posts.set(m[2], p);
+  });
+
+  const list = [...posts.values()];
+  console.table(list.map(({ username, like_count, reply_count, repost_count, quote_count }) =>
+    ({ username, like_count, reply_count, repost_count, quote_count })));
+  if (!list.length) return alert("Tidak ada post ditemukan. Pastikan sudah login dan halaman pencarian terbuka.");
+
+  const res = await fetch(cfg.url + "/rest/v1/rpc/submit_posts", {
+    method: "POST",
+    headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_secret: cfg.secret, p_posts: list })
+  });
+  alert(res.ok ? "Terkirim " + (await res.text()) + " post ke Supabase." : "Gagal: " + (await res.text()));
+}
+
+/* ---------- 3. Salin skrip / bookmarklet ---------- */
+const secretInput = document.getElementById("secret");
+const msg = document.getElementById("msg");
+const buildCode = () => "(" + collector.toString() + ")(" +
+  JSON.stringify({ url: SUPABASE_URL, key: SUPABASE_ANON_KEY, secret: secretInput.value }) + ");";
+
+document.getElementById("copy").addEventListener("click", async () => {
+  if (!secretInput.value) { msg.textContent = "Isi kata rahasia dulu."; return; }
+  try {
+    await navigator.clipboard.writeText(buildCode());
+    msg.textContent = "Skrip tersalin. Tempel di Console halaman Threads.";
+  } catch (e) {
+    msg.textContent = "Gagal menyalin. Gunakan bookmarklet sebagai gantinya.";
+  }
+});
+
+const bm = document.getElementById("bm");
+const refreshBookmarklet = () => { bm.href = "javascript:" + encodeURIComponent(buildCode()); };
+secretInput.addEventListener("input", refreshBookmarklet);
+bm.addEventListener("click", e => { e.preventDefault(); msg.textContent = "Seret tombol ini ke bookmark bar, jangan diklik di sini."; });
+refreshBookmarklet();
+</script>
+</body>
+</html>
