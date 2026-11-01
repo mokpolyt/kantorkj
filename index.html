@@ -1,121 +1,112 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Top 5 Threads #kerjaremote</title>
+<title>Extractor &amp; Co. – Cartoon Office</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f3f6f4;--ink:#16221c;--mute:#5d6b63;--line:#cfd9d3;--card:#fff;--accent:#0b6b4f;--chip:#e3efe9;--onaccent:#fff}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1713;--ink:#e8f0eb;--mute:#93a39a;--line:#26362d;--card:#16211b;--accent:#5fd3a5;--chip:#1d2e25;--onaccent:#0f1713}}
+:root{--ink:#2f3e46;--wall:#bfe0ee;--wood:#c98a4b;--wood2:#a86f38}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 "Source Serif 4",Georgia,serif}
-main{max-width:720px;margin:0 auto;padding:48px 20px 80px}
-h1{font:800 clamp(2rem,6vw,3.2rem)/1.05 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 8px;letter-spacing:-.02em}
-.sub{color:var(--mute);margin:0 0 36px}
-ol{list-style:none;margin:0;padding:0;display:grid;gap:16px}
-li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
-li:first-child{border-color:var(--accent);border-width:2px}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font:500 .95rem "Bricolage Grotesque",system-ui,sans-serif}
-.user{color:var(--accent)}
-.score{font-weight:800;font-size:1.4rem}
-p.t{margin:12px 0 14px;white-space:pre-wrap;overflow-wrap:anywhere}
-.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:500 .85rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--mute)}
-.meta span{background:var(--chip);padding:3px 9px;border-radius:99px}
-.meta a{margin-left:auto;color:var(--accent);font-weight:800;text-decoration:none}
-.meta a:hover,.meta a:focus-visible{text-decoration:underline}
-.state{color:var(--mute)}
-details{margin-top:40px;border-top:1px solid var(--line);padding-top:20px;font:500 .95rem/1.5 "Bricolage Grotesque",system-ui,sans-serif}
-summary{cursor:pointer;font-weight:800}
-details ol{list-style:decimal;padding-left:20px;display:block;margin:12px 0}
-details li{background:none;border:0;padding:2px 0}
-input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);width:100%;max-width:340px}
-.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
-button,a.btn{font:800 .9rem "Bricolage Grotesque",system-ui,sans-serif;padding:9px 14px;border-radius:6px;border:0;background:var(--accent);color:var(--onaccent);cursor:pointer;text-decoration:none}
-a.btn{background:var(--chip);color:var(--accent);border:1px dashed var(--accent)}
-button:focus-visible,a.btn:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.ok{color:var(--accent)}
+body{margin:0;background:#e9f1f4;color:var(--ink);font:16px/1.45 Nunito,system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1,h2,h3,button,.sign{font-family:Fredoka,system-ui,sans-serif}
+.office{border:4px solid var(--ink);border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 8px 0 rgba(47,62,70,.25)}
+.wall{background:var(--wall);border-bottom:10px solid #6f98ab;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sign{background:var(--wood);color:#fff7e6;border:4px solid var(--wood2);border-radius:12px;padding:6px 22px;font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:700;text-shadow:0 2px 0 var(--wood2);text-align:center}
+.floor{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px;padding:26px 18px 30px;background:repeating-linear-gradient(90deg,#e8cfa4 0 118px,#dfc193 118px 120px)}
+.desk{text-align:center}
+.desk svg{width:100%;height:auto;display:block}
+.desk h3{margin:0;font-size:1rem}
+.status{min-height:2.7em;margin:2px 0 6px;font-size:.82rem;color:#4a5a63}
+.go{font-size:.95rem;font-weight:700;padding:7px 16px;border:3px solid var(--ink);border-radius:12px;background:#ffcf3f;color:var(--ink);box-shadow:0 4px 0 var(--ink);cursor:pointer}
+.go:active:not(:disabled){transform:translateY(4px);box-shadow:none}
+.go:disabled{background:#dfe4e6;color:#8a959b;border-color:#9aa5ab;box-shadow:0 4px 0 #9aa5ab;cursor:not-allowed}
+.go:focus-visible,a:focus-visible{outline:3px solid #1a73e8;outline-offset:2px}
+.bm{display:block;margin-top:8px;font-size:.75rem;color:#4a5a63}
+.plant{display:flex;align-items:flex-end;justify-content:center;font-size:84px;line-height:1}
+.help{margin:14px 4px;font-size:.9rem;color:#4a5a63}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.card{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:16px}
+.card h2{margin:0 0 2px;font-size:1.2rem}.card p.s{margin:0 0 12px;font-size:.85rem;color:#5d6b73}
+.row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:2px dashed #d5dde1;color:inherit;text-decoration:none}
+.row:hover b{text-decoration:underline}
+.row img{width:96px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#ddd;flex:none}
+.row div{min-width:0;flex:1}.row b{display:block;overflow-wrap:anywhere;font-size:.92rem;line-height:1.25}
+.row small{color:#5d6b73}.num{font:700 .95rem Fredoka,sans-serif;white-space:nowrap}
+.txt{white-space:pre-wrap;overflow-wrap:anywhere;margin:2px 0}
+/* worker animation */
+.arm{animation:type .28s ease-in-out infinite alternate;animation-play-state:paused}
+.a2{animation-delay:-.14s}
+.working .arm{animation-play-state:running}
+@keyframes type{to{transform:translateY(5px)}}
+.head{transform-box:fill-box;transform-origin:50% 100%;animation:bob 3.5s ease-in-out infinite}
+@keyframes bob{50%{transform:rotate(-2.5deg)}}
+.working .head{animation:nod .45s ease-in-out infinite alternate}
+@keyframes nod{to{transform:translateY(2px) rotate(2deg)}}
+.eyes{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+@keyframes blink{95%,100%{transform:scaleY(.1)}}
+.zeyes,.sweat,.party,.zzz{opacity:0}
+.zeyes{stroke:#2b2b2b;stroke-width:2.5;stroke-linecap:round;fill:none}
+.asleep .eyes{display:none}.asleep .zeyes{opacity:1}
+.working .sweat{opacity:1;animation:drip .9s infinite}
+@keyframes drip{to{transform:translateY(10px);opacity:0}}
+.done .party{opacity:1;animation:pop .5s ease-out}
+@keyframes pop{from{transform:scale(.2)}}
+.done .worker{animation:hop .45s ease-out 3}
+@keyframes hop{50%{transform:translateY(-10px)}}
+.asleep .zzz{opacity:1;animation:flt 2.6s ease-in-out infinite}
+@keyframes flt{50%{transform:translateY(-6px)}}
+.working .bar{animation:blip .5s steps(2) infinite}
+@keyframes blip{50%{opacity:.25}}
+.working .scr{fill:#3a6f8f}
+@media(max-width:900px){.floor{grid-template-columns:repeat(2,1fr)}.board{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
 </head>
 <body>
 <main>
-  <h1>Top 5 post #kerjaremote</h1>
-  <p class="sub" id="sub">Post dengan engagement tertinggi di Threads.</p>
-  <ol id="list"><li class="state">Memuat…</li></ol>
-
-  <details>
-    <summary>Ambil data terbaru dari Threads</summary>
-    <ol>
-      <li>Klik <b>Salin skrip</b>, atau seret tombol <b>Bookmarklet</b> ke bookmark bar.</li>
-      <li>Login ke Threads dan buka <code>threads.com/search?q=kerjaremote</code>.</li>
-      <li>Tekan F12 &gt; Console, tempel skrip lalu Enter (atau klik bookmarklet-nya).</li>
-      <li>Kembali ke halaman ini dan muat ulang.</li>
-    </ol>
-    <div class="row">
-      <button id="copy" type="button">Salin skrip</button>
-      <a id="bm" class="btn" href="#">Bookmarklet</a>
+  <div class="office">
+    <div class="wall">
+      <svg width="120" height="80" viewBox="0 0 120 80" aria-hidden="true"><rect x="4" y="4" width="112" height="72" rx="8" fill="#8fd3f4" stroke="#2f3e46" stroke-width="4"/><path d="M60 4v72M4 40h112" stroke="#2f3e46" stroke-width="4"/><ellipse cx="30" cy="22" rx="16" ry="7" fill="#fff"/><ellipse cx="90" cy="58" rx="14" ry="6" fill="#fff"/></svg>
+      <div class="sign">Extractor &amp; Co.</div>
+      <svg width="70" height="70" viewBox="0 0 70 70" aria-hidden="true"><circle cx="35" cy="35" r="30" fill="#fff" stroke="#2f3e46" stroke-width="4"/><path d="M35 35V16M35 35l14 8" stroke="#2f3e46" stroke-width="4" stroke-linecap="round"/></svg>
     </div>
-    <div id="msg" class="ok" role="status"></div>
-  </details>
+    <div class="floor" id="floor"></div>
+  </div>
+  <p class="help">Press <b>Work now</b>: the worker starts typing, a new tab opens, and the script is copied. On that tab press F12 → Console, paste, Enter (Chrome may ask you to type <code>allow pasting</code> first). When data reaches Supabase the worker celebrates and the board refreshes.</p>
+
+  <div class="board">
+    <section class="card"><h2>Desk 1 · Threads</h2><p class="s">Top 5 posts for “kerjaremote” by engagement</p><div id="out-threads">Loading…</div></section>
+    <section class="card"><h2>Desk 2 · YouTube</h2><p class="s">“camping rain”, uploaded in the last 7 days, most viewed first</p><div id="out-youtube">Loading…</div></section>
+  </div>
 </main>
 
 <script>
-/* Dari Supabase > Project Settings > API. Anon key aman dipublikasikan:
-   tabel hanya bisa dibaca (RLS), dan menulis hanya lewat fungsi submit_posts. */
+/* Supabase > Project Settings > API. The anon key is public by design:
+   tables are read-only (RLS) and writes go through submit_* functions. */
 const SUPABASE_URL = "https://gjyeknwtoofpuvoaftfj.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_HBf14rn-fWP8AZ_OaLFfag_V6qNKjk5";
-const SEARCH_QUERY = "kerjaremote";
 
-const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-const fmt = n => new Intl.NumberFormat("id-ID").format(n || 0);
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const fmt = n => new Intl.NumberFormat("en-US").format(n || 0);
+const sb = p => fetch(`${SUPABASE_URL}/rest/v1/${p}`, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY } })
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 
-/* ---------- 1. Tampilkan top 5 ---------- */
-async function load() {
-  const list = document.getElementById("list");
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/threads_posts?select=*&order=engagement.desc&limit=5`, {
-      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` }
-    });
-    if (!res.ok) throw new Error(res.status);
-    const posts = await res.json();
-    list.replaceChildren();
-    if (!posts.length) { list.append(el("li", "state", "Belum ada data. Ambil data lewat panel di bawah.")); return; }
+/* ===== Collectors: run on the Threads / YouTube tab (not on this page) ===== */
+const num = s => {
+  if (!s) return 0;
+  const m = s.toLowerCase().replace(/\s/g, "").match(/([\d.,]+)(k|rb|m|jt|b)?/);
+  if (!m) return 0;
+  let v = m[2] ? parseFloat(m[1].replace(",", ".")) : parseInt(m[1].replace(/[.,]/g, ""), 10);
+  const x = { k: 1e3, rb: 1e3, m: 1e6, jt: 1e6, b: 1e9 }[m[2]];
+  if (x) v *= x;
+  return Math.round(v) || 0;
+};
 
-    posts.forEach(p => {
-      const li = el("li");
-      const top = el("div", "top");
-      top.append(el("span", "user", "@" + (p.username || "unknown")), el("span", "score", fmt(p.engagement)));
-      const meta = el("div", "meta");
-      [["suka", p.like_count], ["balasan", p.reply_count], ["repost", p.repost_count], ["kutipan", p.quote_count]]
-        .forEach(([l, n]) => meta.append(el("span", null, `${fmt(n)} ${l}`)));
-      const a = el("a", null, "Buka di Threads");
-      a.href = p.permalink; a.target = "_blank"; a.rel = "noopener noreferrer";
-      meta.append(a);
-      li.append(top, el("p", "t", p.text || "(tanpa teks)"), meta);
-      list.append(li);
-    });
-    document.getElementById("sub").textContent =
-      "Diperbarui " + new Date(posts[0].fetched_at).toLocaleString("id-ID") + " · engagement = suka + balasan + repost + kutipan";
-  } catch (e) {
-    list.replaceChildren(el("li", "state", "Gagal memuat data. Periksa SUPABASE_URL dan SUPABASE_ANON_KEY."));
-  }
-}
-load();
-
-/* ---------- 2. Collector: dijalankan di halaman Threads, bukan di sini ---------- */
-async function collector(cfg) {
+async function threadsCollector(cfg) {
   for (let i = 0; i < 8; i++) { window.scrollTo(0, document.body.scrollHeight); await new Promise(r => setTimeout(r, 1500)); }
-
-  const num = s => {
-    if (!s) return 0;
-    const m = s.toLowerCase().replace(/\s/g, "").match(/([\d.,]+)(k|rb|m|jt)?/);
-    if (!m) return 0;
-    let v = m[2] ? parseFloat(m[1].replace(",", ".")) : parseInt(m[1].replace(/[.,]/g, ""), 10);
-    if (m[2] === "k" || m[2] === "rb") v *= 1e3;
-    if (m[2] === "m" || m[2] === "jt") v *= 1e6;
-    return Math.round(v) || 0;
-  };
   const kind = l => {
     l = l.toLowerCase();
     if (/^(like|suka|batal suka|unlike)/.test(l)) return "like_count";
@@ -123,56 +114,187 @@ async function collector(cfg) {
     if (/^(repost|posting ulang)/.test(l)) return "repost_count";
     if (/^(quote|kutip)/.test(l)) return "quote_count";
   };
-
   const posts = new Map();
   document.querySelectorAll('a[href*="/post/"]').forEach(a => {
     const m = a.getAttribute("href").match(/\/@([^/]+)\/post\/([^/?#]+)/);
     if (!m || posts.has(m[2])) return;
     let box = a.closest('[data-pressable-container="true"]');
     if (!box) { box = a; for (let i = 0; i < 8 && box.parentElement; i++) box = box.parentElement; }
-    const text = [...box.querySelectorAll('span[dir="auto"]')]
-      .map(s => s.innerText.trim()).sort((x, y) => y.length - x.length)[0] || "";
-    const p = { id: m[2], username: m[1], text, permalink: "https://www.threads.com/@" + m[1] + "/post/" + m[2],
-                like_count: 0, reply_count: 0, repost_count: 0, quote_count: 0 };
+    const text = [...box.querySelectorAll('span[dir="auto"]')].map(s => s.innerText.trim()).sort((x, y) => y.length - x.length)[0] || "";
+    const p = { id: m[2], username: m[1], text, permalink: "https://www.threads.com/@" + m[1] + "/post/" + m[2], like_count: 0, reply_count: 0, repost_count: 0, quote_count: 0 };
     box.querySelectorAll("svg[aria-label]").forEach(svg => {
-      const k = kind(svg.getAttribute("aria-label"));
-      const btn = svg.closest('[role="button"]');
+      const k = kind(svg.getAttribute("aria-label")), btn = svg.closest('[role="button"]');
       if (k && btn) p[k] = num(btn.innerText);
     });
     posts.set(m[2], p);
   });
-
   const list = [...posts.values()];
-  console.table(list.map(({ username, like_count, reply_count, repost_count, quote_count }) =>
-    ({ username, like_count, reply_count, repost_count, quote_count })));
-  if (!list.length) return alert("Tidak ada post ditemukan. Pastikan sudah login dan halaman pencarian terbuka.");
-
-  const res = await fetch(cfg.url + "/rest/v1/rpc/submit_posts", {
-    method: "POST",
-    headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key, "Content-Type": "application/json" },
-    body: JSON.stringify({ p_posts: list })
-  });
-  alert(res.ok ? "Terkirim " + (await res.text()) + " post ke Supabase." : "Gagal: " + (await res.text()));
+  console.table(list.map(({ username, like_count, reply_count, repost_count, quote_count }) => ({ username, like_count, reply_count, repost_count, quote_count })));
+  if (!list.length) return alert("No posts found. Log in and open the search page first.");
+  const res = await fetch(cfg.url + "/rest/v1/rpc/submit_posts", { method: "POST", headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key, "Content-Type": "application/json" }, body: JSON.stringify({ p_posts: list }) });
+  alert(res.ok ? "Sent " + (await res.text()) + " posts." : "Failed: " + (await res.text()));
 }
 
-/* ---------- 3. Salin skrip / bookmarklet ---------- */
-const msg = document.getElementById("msg");
-const buildCode = () => "(" + collector.toString() + ")(" +
-  JSON.stringify({ url: SUPABASE_URL, key: SUPABASE_ANON_KEY }) + ");";
+async function youtubeCollector(cfg) {
+  for (let i = 0; i < 6; i++) { window.scrollTo(0, document.documentElement.scrollHeight); await new Promise(r => setTimeout(r, 1500)); }
+  const ageDays = s => {
+    const m = (s || "").toLowerCase().match(/(\d+)\s*(detik|second|menit|minute|jam|hour|hari|day|minggu|week|bulan|month|tahun|year)/);
+    if (!m) return 99;
+    const n = +m[1], u = m[2];
+    if (/detik|second|menit|minute|jam|hour/.test(u)) return 0;
+    if (/hari|day/.test(u)) return n;
+    if (/minggu|week/.test(u)) return n * 7;
+    return 999;
+  };
+  const seen = new Map();
+  document.querySelectorAll('a[href^="/watch?v="]').forEach(a => {
+    const id = new URL(a.href).searchParams.get("v");
+    if (!id || seen.has(id)) return;
+    const box = a.closest("ytd-video-renderer,yt-lockup-view-model,ytd-rich-item-renderer") || a.parentElement.parentElement.parentElement;
+    const lines = box.innerText.split("\n").map(x => x.trim()).filter(Boolean);
+    const short = re => lines.find(l => l.length < 40 && /\d/.test(l) && re.test(l));
+    const viewsLine = short(/(views|ditonton|tayangan)/i), ageLine = short(/(ago|lalu)/i);
+    if (!viewsLine || !ageLine) return;
+    const title = ((box.querySelector("#video-title,h3") || {}).innerText || lines.find(l => l.length > 12 && l !== viewsLine && l !== ageLine) || "").trim();
+    const channel = ((box.querySelector('a[href^="/@"],ytd-channel-name a,#channel-name a') || {}).innerText || "").trim();
+    seen.set(id, { id, title, channel, views: num(viewsLine), age_text: ageLine, days: ageDays(ageLine), url: "https://www.youtube.com/watch?v=" + id, keyword: cfg.keyword });
+  });
+  const list = [...seen.values()].filter(v => v.days <= 7).sort((a, b) => b.views - a.views).slice(0, 30).map(({ days, ...v }) => v);
+  console.table(list.map(({ title, channel, views, age_text }) => ({ title, channel, views, age_text })));
+  if (!list.length) return alert("No videos from the last 7 days found. Open the YouTube results page first.");
+  const res = await fetch(cfg.url + "/rest/v1/rpc/submit_videos", { method: "POST", headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key, "Content-Type": "application/json" }, body: JSON.stringify({ p_videos: list }) });
+  alert(res.ok ? "Sent " + (await res.text()) + " videos." : "Failed: " + (await res.text()));
+}
 
-document.getElementById("copy").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(buildCode());
-    msg.textContent = "Skrip tersalin. Tempel di Console halaman Threads.";
-  } catch (e) {
-    msg.textContent = "Gagal menyalin. Gunakan bookmarklet sebagai gantinya.";
-  }
+/* ===== Jobs ===== */
+const JOBS = {
+  threads: { table: "threads_posts", url: "https://www.threads.com/search?q=kerjaremote", fn: threadsCollector, cfg: {},
+             load: () => sb("threads_posts?select=*&order=engagement.desc&limit=5") },
+  youtube: { table: "youtube_videos", url: "https://www.youtube.com/results?search_query=camping+rain&sp=CAMSBAgDEAE%3D", fn: youtubeCollector, cfg: { keyword: "camping rain" },
+             load: () => sb("youtube_videos?select=*&keyword=eq.camping%20rain&order=views.desc&limit=10") }
+};
+const buildCode = j => "const num=" + num.toString() + ";(" + j.fn.toString() + ")(" + JSON.stringify({ ...j.cfg, url: SUPABASE_URL, key: SUPABASE_ANON_KEY }) + ");";
+
+/* ===== Office ===== */
+const DESKS = [
+  { id: "threads", name: "Threads Extractor", shirt: "#2b2b2b", hair: "#3a2a1e", skin: "#f2c9a0", icon: "@" },
+  { id: "youtube", name: "YouTube Extractor", shirt: "#e53935", hair: "#5a3b1a", skin: "#e8b88a", icon: "▶" },
+  { id: "d3", name: "Desk 3", shirt: "#7e57c2", hair: "#222", skin: "#c68c5d", asleep: 1 },
+  { id: "d4", name: "Desk 4", shirt: "#26a69a", hair: "#b5651d", skin: "#f5d3b3", asleep: 1 },
+  { id: "d5", name: "Desk 5", shirt: "#fb8c00", hair: "#6d4c41", skin: "#e0ac84", asleep: 1 },
+  { id: "d6", name: "Desk 6", shirt: "#5c9ce6", hair: "#111", skin: "#f2c9a0", asleep: 1 },
+  { id: "d7", name: "Desk 7", shirt: "#ec6f9c", hair: "#8d5524", skin: "#d9a577", asleep: 1 }
+];
+
+const deskSVG = d => `<svg viewBox="0 0 220 190" role="img" aria-label="${d.name}">
+ <rect x="102" y="62" width="64" height="74" rx="16" fill="#8d6e63"/>
+ <g class="worker">
+  <rect x="118" y="66" width="44" height="54" rx="14" fill="${d.shirt}"/>
+  <g class="head"><circle cx="140" cy="44" r="19" fill="${d.skin}"/>
+   <path d="M121 41q1-23 20-22q19 0 19 22q-8-10-20-10q-12 0-19 10z" fill="${d.hair}"/>
+   <g class="eyes" fill="#2b2b2b"><circle cx="133" cy="46" r="2.8"/><circle cx="147" cy="46" r="2.8"/></g>
+   <path class="zeyes" d="M129 46q4 3 8 0M143 46q4 3 8 0"/>
+   <path d="M135 54q5 4 10 0" stroke="#2b2b2b" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+  <g class="arm a1"><rect x="120" y="76" width="10" height="34" rx="5" fill="${d.shirt}"/><circle cx="125" cy="112" r="6" fill="${d.skin}"/></g>
+  <g class="arm a2"><rect x="150" y="76" width="10" height="34" rx="5" fill="${d.shirt}"/><circle cx="155" cy="112" r="6" fill="${d.skin}"/></g>
+ </g>
+ <path class="sweat" d="M162 32q5 8 0 11q-5-3 0-11z" fill="#6ec1ff"/>
+ <g class="party" fill="#ffc107" stroke="#2f3e46" stroke-width="1" font-size="18"><text x="96" y="30">★</text><text x="168" y="22">★</text><text x="176" y="58">✦</text></g>
+ <g class="zzz" fill="#5d6b73" font-family="Fredoka,sans-serif" font-weight="700"><text x="162" y="30" font-size="16">Z</text><text x="174" y="16" font-size="12">z</text></g>
+ <rect x="20" y="52" width="76" height="56" rx="7" fill="#33414d"/><rect class="scr" x="26" y="58" width="64" height="40" rx="4" fill="#1d2a33"/>
+ ${d.icon ? `<text x="58" y="86" text-anchor="middle" font-size="26" fill="#fff">${d.icon}</text>
+ <rect class="bar" x="32" y="91" width="18" height="3" fill="#8fd3f4"/><rect class="bar" x="54" y="91" width="10" height="3" fill="#ffcf3f" style="animation-delay:.15s"/><rect class="bar" x="68" y="91" width="16" height="3" fill="#8fd3f4" style="animation-delay:.3s"/>` : ""}
+ <rect x="50" y="108" width="16" height="6" fill="#33414d"/>
+ <rect x="8" y="112" width="204" height="14" rx="5" fill="#c98a4b" stroke="#2f3e46" stroke-width="3"/>
+ <rect x="116" y="108" width="48" height="5" rx="2" fill="#dfe4e6" stroke="#2f3e46" stroke-width="1.5"/>
+ <rect x="16" y="126" width="188" height="48" fill="#a86f38" stroke="#2f3e46" stroke-width="3"/>
+ <rect x="82" y="134" width="56" height="20" rx="4" fill="#fff7e6" stroke="#2f3e46" stroke-width="2"/>
+ <text x="110" y="148" text-anchor="middle" font-size="9" font-family="Fredoka,sans-serif" font-weight="700" fill="#2f3e46">${d.name.replace(" Extractor", "")}</text>
+</svg>`;
+
+const floor = document.getElementById("floor");
+DESKS.forEach(d => {
+  const box = el("div", "desk" + (d.asleep ? " asleep" : ""));
+  box.id = "desk-" + d.id;
+  box.innerHTML = deskSVG(d);
+  box.append(el("h3", null, d.name));
+  box.append(el("div", "status", d.asleep ? "Zzz… no job yet" : "Ready"));
+  const b = el("button", "go", d.asleep ? "No job yet" : "Work now");
+  b.type = "button"; b.disabled = !!d.asleep;
+  if (!d.asleep) b.addEventListener("click", () => work(d.id));
+  box.append(b);
+  if (!d.asleep) { const a = el("a", "bm", "or drag this bookmarklet"); a.href = "javascript:" + encodeURIComponent(buildCode(JOBS[d.id])); a.addEventListener("click", e => e.preventDefault()); box.append(a); }
+  floor.append(box);
 });
+floor.append(el("div", "plant", "🪴"));
 
-const bm = document.getElementById("bm");
-const refreshBookmarklet = () => { bm.href = "javascript:" + encodeURIComponent(buildCode()); };
-bm.addEventListener("click", e => { e.preventDefault(); msg.textContent = "Seret tombol ini ke bookmark bar, jangan diklik di sini."; });
-refreshBookmarklet();
+function setState(id, state, text) {
+  const box = document.getElementById("desk-" + id);
+  box.classList.remove("working", "done");
+  if (state !== "idle") box.classList.add(state);
+  box.querySelector(".status").textContent = text;
+  const b = box.querySelector(".go");
+  b.disabled = state === "working";
+  b.textContent = state === "working" ? "Working…" : "Work now";
+}
+
+/* ===== Render results ===== */
+const renderers = {
+  threads(rows, out) {
+    out.replaceChildren();
+    if (!rows.length) return out.append(el("p", null, "No data yet. Press Work now on Desk 1."));
+    rows.forEach(p => {
+      const a = el("a", "row"); a.href = p.permalink; a.target = "_blank"; a.rel = "noopener noreferrer";
+      const d = el("div"); d.append(el("b", null, "@" + (p.username || "unknown")), el("span", "txt", p.text || "(no text)"),
+        el("small", null, `${fmt(p.like_count)} likes · ${fmt(p.reply_count)} replies · ${fmt(p.repost_count)} reposts`));
+      a.append(d, el("span", "num", fmt(p.engagement)));
+      out.append(a);
+    });
+  },
+  youtube(rows, out) {
+    out.replaceChildren();
+    if (!rows.length) return out.append(el("p", null, "No data yet. Press Work now on Desk 2."));
+    rows.forEach(v => {
+      const a = el("a", "row"); a.href = v.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+      const img = el("img"); img.src = `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`; img.alt = ""; img.loading = "lazy";
+      const d = el("div"); d.append(el("b", null, v.title), el("small", null, `${v.channel || "Unknown channel"} · ${v.age_text || ""}`));
+      a.append(img, d, el("span", "num", fmt(v.views) + " views"));
+      out.append(a);
+    });
+  }
+};
+async function show(id) {
+  const out = document.getElementById("out-" + id);
+  try { renderers[id](await JOBS[id].load(), out); }
+  catch (e) { out.textContent = "Could not load data. Check SUPABASE_URL / SUPABASE_ANON_KEY and that supabase.sql was run."; }
+}
+
+/* ===== Work now ===== */
+const stamp = async j => ((await sb(`${j.table}?select=fetched_at&order=fetched_at.desc&limit=1`))[0] || {}).fetched_at || "";
+async function work(id) {
+  const j = JOBS[id];
+  if (document.getElementById("desk-" + id).classList.contains("working")) return;
+  window.open(j.url, "_blank", "noopener");
+  navigator.clipboard.writeText(buildCode(j))
+    .then(() => setState(id, "working", "Script copied. Paste it in the Console of the new tab."))
+    .catch(() => setState(id, "working", "Could not copy. Use the bookmarklet link instead."));
+  setState(id, "working", "Opening the tab…");
+  let base = ""; try { base = await stamp(j); } catch (e) {}
+  const t0 = Date.now();
+  const timer = setInterval(async () => {
+    try {
+      const s = await stamp(j);
+      if (s && s !== base) {
+        clearInterval(timer); await show(id);
+        setState(id, "done", "Done! Fresh data is on the board.");
+        setTimeout(() => setState(id, "idle", "Ready"), 6000); return;
+      }
+    } catch (e) {}
+    if (Date.now() - t0 > 180000) { clearInterval(timer); setState(id, "idle", "No data arrived. Did you paste the script?"); }
+  }, 4000);
+}
+
+show("threads"); show("youtube");
 </script>
 </body>
 </html>
