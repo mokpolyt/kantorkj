@@ -47,14 +47,12 @@ button:focus-visible,a.btn:focus-visible,input:focus-visible,summary:focus-visib
   <details>
     <summary>Ambil data terbaru dari Threads</summary>
     <ol>
-      <li>Masukkan kata rahasia (sama dengan yang ada di <code>supabase.sql</code>).</li>
       <li>Klik <b>Salin skrip</b>, atau seret tombol <b>Bookmarklet</b> ke bookmark bar.</li>
       <li>Login ke Threads dan buka <code>threads.com/search?q=kerjaremote</code>.</li>
       <li>Tekan F12 &gt; Console, tempel skrip lalu Enter (atau klik bookmarklet-nya).</li>
       <li>Kembali ke halaman ini dan muat ulang.</li>
     </ol>
     <div class="row">
-      <input id="secret" type="password" placeholder="Kata rahasia" autocomplete="off">
       <button id="copy" type="button">Salin skrip</button>
       <a id="bm" class="btn" href="#">Bookmarklet</a>
     </div>
@@ -64,7 +62,7 @@ button:focus-visible,a.btn:focus-visible,input:focus-visible,summary:focus-visib
 
 <script>
 /* Dari Supabase > Project Settings > API. Anon key aman dipublikasikan:
-   tabel hanya bisa dibaca (RLS), dan menulis butuh kata rahasia. */
+   tabel hanya bisa dibaca (RLS), dan menulis hanya lewat fungsi submit_posts. */
 const SUPABASE_URL = "https://gjyeknwtoofpuvoaftfj.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_HBf14rn-fWP8AZ_OaLFfag_V6qNKjk5";
 const SEARCH_QUERY = "kerjaremote";
@@ -152,19 +150,17 @@ async function collector(cfg) {
   const res = await fetch(cfg.url + "/rest/v1/rpc/submit_posts", {
     method: "POST",
     headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key, "Content-Type": "application/json" },
-    body: JSON.stringify({ p_secret: cfg.secret, p_posts: list })
+    body: JSON.stringify({ p_posts: list })
   });
   alert(res.ok ? "Terkirim " + (await res.text()) + " post ke Supabase." : "Gagal: " + (await res.text()));
 }
 
 /* ---------- 3. Salin skrip / bookmarklet ---------- */
-const secretInput = document.getElementById("secret");
 const msg = document.getElementById("msg");
 const buildCode = () => "(" + collector.toString() + ")(" +
-  JSON.stringify({ url: SUPABASE_URL, key: SUPABASE_ANON_KEY, secret: secretInput.value }) + ");";
+  JSON.stringify({ url: SUPABASE_URL, key: SUPABASE_ANON_KEY }) + ");";
 
 document.getElementById("copy").addEventListener("click", async () => {
-  if (!secretInput.value) { msg.textContent = "Isi kata rahasia dulu."; return; }
   try {
     await navigator.clipboard.writeText(buildCode());
     msg.textContent = "Skrip tersalin. Tempel di Console halaman Threads.";
@@ -175,7 +171,6 @@ document.getElementById("copy").addEventListener("click", async () => {
 
 const bm = document.getElementById("bm");
 const refreshBookmarklet = () => { bm.href = "javascript:" + encodeURIComponent(buildCode()); };
-secretInput.addEventListener("input", refreshBookmarklet);
 bm.addEventListener("click", e => { e.preventDefault(); msg.textContent = "Seret tombol ini ke bookmark bar, jangan diklik di sini."; });
 refreshBookmarklet();
 </script>
