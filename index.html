@@ -35,6 +35,28 @@ h1,h2,h3,button,.sign{font-family:Fredoka,system-ui,sans-serif}
 .row img{width:96px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#ddd;flex:none}
 .row div{min-width:0;flex:1}.row b{display:block;overflow-wrap:anywhere;font-size:.92rem;line-height:1.25}
 .row small{color:#5d6b73}.num{font:700 .95rem Fredoka,sans-serif;white-space:nowrap}
+.card.wide{grid-column:1/-1}.ch{margin:14px 0 0;font-size:1rem}
+.worker{transform-box:fill-box;transform-origin:50% 100%}
+.working .worker{animation:sway 1.8s ease-in-out infinite alternate}
+@keyframes sway{from{transform:translateX(-6px) rotate(-3deg)}to{transform:translateX(6px) rotate(3deg)}}
+.cheek{fill:#ff8a9a;opacity:0}
+.heyes{fill:none;stroke:#2b2b2b;stroke-width:2.6;stroke-linecap:round;opacity:0}
+.bigsmile,.omouth{fill:#7a2230;opacity:0}
+.omouth{transform-box:fill-box;transform-origin:center}
+.working .eyes,.done .eyes{display:none}
+.working .heyes,.done .heyes,.working .cheek,.done .cheek,.working .bigsmile,.done .bigsmile{opacity:1}
+.working .mouth,.done .mouth{opacity:0}
+.working .bigsmile{animation:smilehide 8s var(--sd,0s) infinite}
+.working .omouth{animation:singo 8s var(--sd,0s) infinite}
+@keyframes smilehide{0%,58%{opacity:1}60%,94%{opacity:0}96%,100%{opacity:1}}
+@keyframes singo{0%,58%{opacity:0}60%{opacity:1;transform:scaleY(1)}70%{transform:scaleY(.5)}80%{transform:scaleY(1)}90%{transform:scaleY(.6)}94%{opacity:1}96%,100%{opacity:0}}
+.notes{opacity:0}
+.working .notes{animation:singn 8s var(--sd,0s) infinite}
+@keyframes singn{0%,58%{opacity:0;transform:translateY(0)}64%{opacity:1}94%{opacity:1;transform:translateY(-16px)}98%,100%{opacity:0;transform:translateY(-16px)}}
+.chips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:6px}
+.chips a{font-size:.72rem;background:#fff;border:2px solid var(--ink);border-radius:99px;padding:0 8px;color:var(--ink);text-decoration:none}
+.tag{display:inline-block;font:700 .72rem Fredoka,sans-serif;background:#ffe9a8;border:2px solid var(--ink);border-radius:99px;padding:0 8px;margin-right:6px}
+.topic{margin:16px 0 4px;font-size:1.05rem}.topic small{font:400 .8rem Nunito,sans-serif;color:#5d6b73}
 .txt{white-space:pre-wrap;overflow-wrap:anywhere;margin:2px 0}
 /* worker animation */
 .arm{animation:type .28s ease-in-out infinite alternate;animation-play-state:paused}
@@ -50,7 +72,6 @@ h1,h2,h3,button,.sign{font-family:Fredoka,system-ui,sans-serif}
 .zeyes,.sweat,.party,.zzz{opacity:0}
 .zeyes{stroke:#2b2b2b;stroke-width:2.5;stroke-linecap:round;fill:none}
 .asleep .eyes{display:none}.asleep .zeyes{opacity:1}
-.working .sweat{opacity:1;animation:drip .9s infinite}
 @keyframes drip{to{transform:translateY(10px);opacity:0}}
 .done .party{opacity:1;animation:pop .5s ease-out}
 @keyframes pop{from{transform:scale(.2)}}
@@ -80,6 +101,8 @@ h1,h2,h3,button,.sign{font-family:Fredoka,system-ui,sans-serif}
   <div class="board">
     <section class="card"><h2>Desk 1 · Threads</h2><p class="s">Top 5 posts for “kerjaremote” by engagement</p><div id="out-threads">Loading…</div></section>
     <section class="card"><h2>Desk 2 · YouTube</h2><p class="s">“camping rain”, last 6 days, top 6 by views</p><div id="out-youtube">Loading…</div></section>
+    <section class="card wide"><h2>Desk 3 · Channel finder</h2><p class="s">Latest 3 videos from The Why Files, Josh the Intern, The Infographics Show, Kurzgesagt and POV Channel</p><div id="out-channels">Loading…</div></section>
+    <section class="card wide"><h2>Desk 4 · News research</h2><p class="s">Stories that detik, CNN Indonesia, Kompas, Liputan6 and Tempo all cover (3 to 5 topics)</p><div id="out-news">Loading…</div></section>
   </div>
 </main>
 
@@ -169,12 +192,67 @@ async function youtubeCollector(cfg) {
   } catch (e) { alert("Extractor error: " + e.message); }
 }
 
+async function channelCollector(cfg) {
+  try {
+    const none = [];
+    const groups = await Promise.all(cfg.channels.map(async name => {
+      const html = await (await fetch("/results?search_query=" + encodeURIComponent(name) + "&sp=EgIQAg%3D%3D")).text();
+      const m = html.match(/"channelRenderer":\{"channelId":"(UC[\w-]{22})"/) || html.match(/"channelId":"(UC[\w-]{22})"/);
+      if (!m) { none.push(name); return []; }
+      const xml = new DOMParser().parseFromString(await (await fetch("/feeds/videos.xml?channel_id=" + m[1])).text(), "text/xml");
+      const author = (xml.querySelector("author > name") || {}).textContent || name;
+      return [...xml.getElementsByTagName("entry")].slice(0, cfg.per).map(e => {
+        const url = e.getElementsByTagName("link")[0].getAttribute("href");
+        return { id: (url.match(/[?&]v=([^&]+)/) || url.match(/shorts\/([^?]+)/) || [])[1] || url, channel: author,
+                 title: e.getElementsByTagName("title")[0].textContent, published: e.getElementsByTagName("published")[0].textContent, url };
+      });
+    }));
+    const list = groups.flat();
+    console.table(list.map(({ channel, title, published }) => ({ channel, title, published })));
+    if (!list.length) return alert("No videos found. Open youtube.com and run again.");
+    const res = await fetch(cfg.url + "/rest/v1/rpc/submit_channel_videos", { method: "POST", headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key, "Content-Type": "application/json" }, body: JSON.stringify({ p_videos: list }) });
+    const body = await res.text();
+    alert(res.ok ? "Sent " + body + " videos from " + [...new Set(list.map(v => v.channel))].join(", ") + (none.length ? "\nNot found: " + none.join(", ") : "") : "Failed (" + res.status + "): " + body);
+  } catch (e) { alert("Extractor error: " + e.message); }
+}
+
+async function newsCollector(cfg) {
+  try {
+    const dom = location.hostname.split(".").slice(-2).join(".");
+    const source = cfg.sources.find(s => dom.startsWith(s + "."));
+    if (!source) return alert("Open one of the 5 news sites first (detik, CNN Indonesia, Kompas, Liputan6, Tempo).");
+    window.scrollTo(0, 1500); await new Promise(r => setTimeout(r, 600)); window.scrollTo(0, 0);
+    const byUrl = new Map(), titles = new Set();
+    document.querySelectorAll("a[href]").forEach(a => {
+      if (!a.hostname.endsWith(dom)) return;
+      const path = a.pathname;
+      if (path.length < 15 || !(/\d/.test(path) || path.includes("-"))) return;
+      const title = (a.innerText || a.getAttribute("title") || "").split("\n").map(x => x.trim()).sort((x, y) => y.length - x.length)[0] || "";
+      if (title.length < 25 || title.length > 220 || title.split(" ").length < 4 || titles.has(title)) return;
+      titles.add(title);
+      byUrl.set(a.href, { title, url: a.href.split("#")[0] });
+    });
+    const list = [...byUrl.values()].slice(0, 40);
+    console.table(list);
+    if (list.length < 3) return alert("Only found " + list.length + " headlines. Let the page finish loading, then run again.");
+    const res = await fetch(cfg.url + "/rest/v1/rpc/submit_headlines", { method: "POST", headers: { apikey: cfg.key, Authorization: "Bearer " + cfg.key, "Content-Type": "application/json" }, body: JSON.stringify({ p_source: source, p_items: list }) });
+    const body = await res.text();
+    alert(res.ok ? "Sent " + body + " headlines from " + source + ". Do the other news tabs too." : "Failed (" + res.status + "): " + body);
+  } catch (e) { alert("Extractor error: " + e.message); }
+}
+
 /* ===== Jobs ===== */
 const JOBS = {
   threads: { table: "threads_posts", url: "https://www.threads.com/search?q=kerjaremote", fn: threadsCollector, cfg: {},
              load: () => sb("threads_posts?select=*&order=engagement.desc&limit=5") },
   youtube: { table: "youtube_videos", url: "https://www.youtube.com/results?search_query=camping+rain&sp=CAMSBAgDEAE%3D", fn: youtubeCollector, cfg: { keyword: "camping rain" },
-             load: () => sb("youtube_videos?select=title,url&order=rank.asc&limit=6") }
+             load: () => sb("youtube_videos?select=title,url&order=rank.asc&limit=6") },
+  channels: { table: "channel_videos", url: "https://www.youtube.com/", fn: channelCollector,
+              cfg: { per: 3, channels: ["The Why Files", "Josh the Intern", "The Infographics Show", "Kurzgesagt", "POV Channel"] },
+              load: () => sb("channel_videos?select=*&order=rank.asc&limit=20") },
+  news: { urls: ["https://news.detik.com/", "https://www.cnnindonesia.com/", "https://www.kompas.com/", "https://www.liputan6.com/", "https://www.tempo.co/"],
+          fn: newsCollector, cfg: { sources: ["detik", "cnnindonesia", "kompas", "liputan6", "tempo"] },
+          load: () => sb("news_headlines?select=source,title,url&order=fetched_at.desc&limit=400") }
 };
 const buildCode = j => "const num=" + num.toString() + ";(" + j.fn.toString() + ")(" + JSON.stringify({ ...j.cfg, url: SUPABASE_URL, key: SUPABASE_ANON_KEY }) + ");";
 
@@ -182,8 +260,8 @@ const buildCode = j => "const num=" + num.toString() + ";(" + j.fn.toString() + 
 const DESKS = [
   { id: "threads", name: "Threads Extractor", shirt: "#2b2b2b", hair: "#3a2a1e", skin: "#f2c9a0", icon: "@" },
   { id: "youtube", name: "YouTube Extractor", shirt: "#e53935", hair: "#5a3b1a", skin: "#e8b88a", icon: "▶" },
-  { id: "d3", name: "Desk 3", shirt: "#7e57c2", hair: "#222", skin: "#c68c5d", asleep: 1 },
-  { id: "d4", name: "Desk 4", shirt: "#26a69a", hair: "#b5651d", skin: "#f5d3b3", asleep: 1 },
+  { id: "channels", name: "Channel Finder", shirt: "#7e57c2", hair: "#222", skin: "#c68c5d", icon: "🔍" },
+  { id: "news", name: "News Research", shirt: "#26a69a", hair: "#b5651d", skin: "#f5d3b3", icon: "📰" },
   { id: "d5", name: "Desk 5", shirt: "#fb8c00", hair: "#6d4c41", skin: "#e0ac84", asleep: 1 },
   { id: "d6", name: "Desk 6", shirt: "#5c9ce6", hair: "#111", skin: "#f2c9a0", asleep: 1 },
   { id: "d7", name: "Desk 7", shirt: "#ec6f9c", hair: "#8d5524", skin: "#d9a577", asleep: 1 }
@@ -197,12 +275,16 @@ const deskSVG = d => `<svg viewBox="0 0 220 190" role="img" aria-label="${d.name
    <path d="M121 41q1-23 20-22q19 0 19 22q-8-10-20-10q-12 0-19 10z" fill="${d.hair}"/>
    <g class="eyes" fill="#2b2b2b"><circle cx="133" cy="46" r="2.8"/><circle cx="147" cy="46" r="2.8"/></g>
    <path class="zeyes" d="M129 46q4 3 8 0M143 46q4 3 8 0"/>
-   <path d="M135 54q5 4 10 0" stroke="#2b2b2b" stroke-width="2.2" fill="none" stroke-linecap="round"/></g>
+   <path class="mouth" d="M135 54q5 4 10 0" stroke="#2b2b2b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+   <circle class="cheek" cx="127" cy="53" r="3.5"/><circle class="cheek" cx="153" cy="53" r="3.5"/>
+   <path class="heyes" d="M129 47q4-5 8 0M143 47q4-5 8 0"/>
+   <path class="bigsmile" d="M131 51q9 14 18 0z"/><ellipse class="omouth" cx="140" cy="55" rx="4.5" ry="5.5"/></g>
   <g class="arm a1"><rect x="120" y="76" width="10" height="34" rx="5" fill="${d.shirt}"/><circle cx="125" cy="112" r="6" fill="${d.skin}"/></g>
   <g class="arm a2"><rect x="150" y="76" width="10" height="34" rx="5" fill="${d.shirt}"/><circle cx="155" cy="112" r="6" fill="${d.skin}"/></g>
  </g>
  <path class="sweat" d="M162 32q5 8 0 11q-5-3 0-11z" fill="#6ec1ff"/>
  <g class="party" fill="#ffc107" stroke="#2f3e46" stroke-width="1" font-size="18"><text x="96" y="30">★</text><text x="168" y="22">★</text><text x="176" y="58">✦</text></g>
+ <g class="notes" font-size="17" font-family="sans-serif"><text x="162" y="34" fill="#e91e63">♪</text><text x="176" y="18" fill="#1e88e5">♫</text></g>
  <g class="zzz" fill="#5d6b73" font-family="Fredoka,sans-serif" font-weight="700"><text x="162" y="30" font-size="16">Z</text><text x="174" y="16" font-size="12">z</text></g>
  <rect x="20" y="52" width="76" height="56" rx="7" fill="#33414d"/><rect class="scr" x="26" y="58" width="64" height="40" rx="4" fill="#1d2a33"/>
  ${d.icon ? `<text x="58" y="86" text-anchor="middle" font-size="26" fill="#fff">${d.icon}</text>
@@ -212,7 +294,7 @@ const deskSVG = d => `<svg viewBox="0 0 220 190" role="img" aria-label="${d.name
  <rect x="116" y="108" width="48" height="5" rx="2" fill="#dfe4e6" stroke="#2f3e46" stroke-width="1.5"/>
  <rect x="16" y="126" width="188" height="48" fill="#a86f38" stroke="#2f3e46" stroke-width="3"/>
  <rect x="82" y="134" width="56" height="20" rx="4" fill="#fff7e6" stroke="#2f3e46" stroke-width="2"/>
- <text x="110" y="148" text-anchor="middle" font-size="9" font-family="Fredoka,sans-serif" font-weight="700" fill="#2f3e46">${d.name.replace(" Extractor", "")}</text>
+ <text x="110" y="148" text-anchor="middle" font-size="9" font-family="Fredoka,sans-serif" font-weight="700" fill="#2f3e46">${d.name.replace(/ (Extractor|Finder)$/, "")}</text>
 </svg>`;
 
 const floor = document.getElementById("floor");
@@ -220,6 +302,7 @@ DESKS.forEach(d => {
   const box = el("div", "desk" + (d.asleep ? " asleep" : ""));
   box.id = "desk-" + d.id;
   box.innerHTML = deskSVG(d);
+  box.style.setProperty("--sd", -(Math.random() * 8).toFixed(1) + "s");
   box.append(el("h3", null, d.name));
   box.append(el("div", "status", d.asleep ? "Zzz… no job yet" : "Ready"));
   const b = el("button", "go", d.asleep ? "No job yet" : "Work now");
@@ -227,6 +310,11 @@ DESKS.forEach(d => {
   if (!d.asleep) b.addEventListener("click", () => work(d.id));
   box.append(b);
   if (!d.asleep) { const a = el("a", "bm", "or drag this bookmarklet"); a.href = "javascript:" + encodeURIComponent(buildCode(JOBS[d.id])); a.addEventListener("click", e => e.preventDefault()); box.append(a); }
+  if (JOBS[d.id] && JOBS[d.id].urls) {
+    const c = el("div", "chips");
+    JOBS[d.id].urls.forEach(u => { const a = el("a", null, new URL(u).hostname.replace(/^(www|news)\./, "").split(".")[0]); a.href = u; a.target = "_blank"; a.rel = "noopener"; c.append(a); });
+    box.append(c);
+  }
   floor.append(box);
 });
 floor.append(el("div", "plant", "🪴"));
@@ -240,6 +328,26 @@ function setState(id, state, text) {
   b.disabled = state === "working";
   b.textContent = state === "working" ? "Working…" : "Work now";
 }
+
+const STOP = new Set("yang dan di ke dari untuk dengan pada ini itu adalah akan atau juga tak tidak bisa oleh saat usai soal hingga kini bakal ada sudah telah jadi dalam hari terkait jelang imbas kata ungkap sebut buka tutup lagi bukan kepada karena sebagai para agar pun kembali baru usul dua tiga satu video foto kompas detik tempo liputan6 cnn indonesia news ternyata begini ini inilah rupanya jadi kena soal".split(" "));
+const toks = t => new Set(t.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(w => w.length > 2 && !STOP.has(w)));
+function clusterNews(rows) {
+  const items = rows.map(r => ({ ...r, t: toks(r.title) })).filter(r => r.t.size >= 3);
+  const p = items.map((_, i) => i), f = i => (p[i] === i ? i : (p[i] = f(p[i])));
+  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
+    if (items[i].source === items[j].source) continue;
+    let n = 0; items[i].t.forEach(w => { if (items[j].t.has(w)) n++; });
+    if ((n >= 2 && n / Math.min(items[i].t.size, items[j].t.size) >= 0.4) || n >= 3) p[f(i)] = f(j);
+  }
+  const g = new Map();
+  items.forEach((it, i) => { const k = f(i); if (!g.has(k)) g.set(k, []); g.get(k).push(it); });
+  return [...g.values()].map(list => {
+    const c = new Map(); list.forEach(x => x.t.forEach(w => c.set(w, (c.get(w) || 0) + 1)));
+    const key = [...c].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([w]) => w);
+    return { list, key, sources: new Set(list.map(x => x.source)).size };
+  }).filter(c => c.sources >= 2).sort((a, b) => b.sources - a.sources || b.list.length - a.list.length).slice(0, 5);
+}
+const SRC = { detik: "detik", cnnindonesia: "CNN Indonesia", kompas: "Kompas", liputan6: "Liputan6", tempo: "Tempo" };
 
 /* ===== Render results ===== */
 const renderers = {
@@ -263,6 +371,35 @@ const renderers = {
       a.append(el("span", "num", i + 1 + "."), d);
       out.append(a);
     });
+  },
+  channels(rows, out) {
+    out.replaceChildren();
+    if (!rows.length) return out.append(el("p", null, "No data yet. Press Work now on Desk 3."));
+    let last = "";
+    rows.forEach(v => {
+      if (v.channel !== last) { out.append(el("h3", "ch", v.channel)); last = v.channel; }
+      const a = el("a", "row"); a.href = v.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+      const d = el("div"); d.append(el("b", null, v.title), el("small", null, new Date(v.published).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })), el("small", null, " · " + v.url));
+      a.append(d); out.append(a);
+    });
+  },
+  news(rows, out) {
+    out.replaceChildren();
+    if (!rows.length) return out.append(el("p", null, "No data yet. Press Work now on Desk 4, then run the script on each news tab."));
+    const counts = {}; rows.forEach(r => { counts[r.source] = (counts[r.source] || 0) + 1; });
+    const groups = clusterNews(rows);
+    out.append(el("p", "s", "Headlines received: " + Object.entries(counts).map(([k, n]) => `${SRC[k] || k} ${n}`).join(", ")));
+    if (!groups.length) return out.append(el("p", null, "No shared stories yet. Run the script on more news tabs."));
+    if (groups.length < 3) out.append(el("p", "s", `Only ${groups.length} shared topic${groups.length > 1 ? "s" : ""} found so far.`));
+    groups.forEach(gr => {
+      const h = el("h3", "topic", gr.key.join(" · ")); h.append(el("small", null, `  ${gr.sources} sources`)); out.append(h);
+      const per = {};
+      gr.list.forEach(x => {
+        per[x.source] = (per[x.source] || 0) + 1; if (per[x.source] > 2) return;
+        const a = el("a", "row"); a.href = x.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+        const d = el("div"); d.append(el("b", null, x.title)); a.append(el("span", "tag", SRC[x.source] || x.source), d); out.append(a);
+      });
+    });
   }
 };
 async function show(id) {
@@ -274,6 +411,7 @@ async function show(id) {
 /* ===== Work now ===== */
 const stamp = async j => ((await sb(`${j.table}?select=fetched_at&order=fetched_at.desc&limit=1`))[0] || {}).fetched_at || "";
 async function work(id) {
+  if (JOBS[id].urls) return workMulti(id);
   const j = JOBS[id];
   if (document.getElementById("desk-" + id).classList.contains("working")) return;
   window.open(j.url, "_blank", "noopener");
@@ -296,7 +434,26 @@ async function work(id) {
   }, 2000);
 }
 
-show("threads"); show("youtube");
+const newsStamps = async () => { const m = {}; (await sb("news_headlines?select=source,fetched_at&order=fetched_at.desc&limit=400")).forEach(x => { if (!m[x.source]) m[x.source] = x.fetched_at; }); return m; };
+async function workMulti(id) {
+  const j = JOBS[id], box = document.getElementById("desk-" + id), all = j.cfg.sources;
+  if (box.classList.contains("working")) return;
+  let blocked = 0; j.urls.forEach(u => { if (!window.open(u, "_blank")) blocked++; });
+  navigator.clipboard.writeText(buildCode(j)).catch(() => {});
+  setState(id, "working", (blocked ? "Popups blocked: use the site links below. " : "") + "Script copied. Paste it in the Console of each news tab.");
+  let base = {}; try { base = await newsStamps(); } catch (e) {}
+  const t0 = Date.now(); let seen = 0;
+  const timer = setInterval(async () => {
+    try {
+      const now = await newsStamps(), got = all.filter(s => now[s] && now[s] !== base[s]).length;
+      if (got !== seen) { seen = got; await show(id); if (got < all.length) box.querySelector(".status").textContent = `${got}/${all.length} sites reported…`; }
+      if (got >= all.length) { clearInterval(timer); setState(id, "done", "All 5 sites reported. Shared stories are on the board."); setTimeout(() => setState(id, "idle", "Ready"), 6000); return; }
+    } catch (e) {}
+    if (Date.now() - t0 > 240000) { clearInterval(timer); setState(id, "idle", seen ? `Stopped with ${seen}/${all.length} sites.` : "No data arrived. Did you paste the script?"); }
+  }, 2000);
+}
+
+show("threads"); show("youtube"); show("channels"); show("news");
 </script>
 </body>
 </html>
